@@ -1,7 +1,6 @@
-
 """
-Sales Analytics Dashboard
-A professional analytics dashboard for sales data visualization and insights
+Modern AI-Powered Sales Analytics Dashboard
+A professional business dashboard with dark theme, similar to Power BI
 Built with Streamlit, Pandas, and Plotly
 """
 
@@ -20,137 +19,213 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for Professional Styling
+# Custom CSS for Modern Dark Theme Dashboard
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
-    /* Main Background */
+    /* Main Background - Dark Theme */
     .stApp {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        background: linear-gradient(135deg, #0a1628 0%, #1a2d4a 50%, #0d1f3c 100%);
         font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+    }
+    
+    /* Force single page - no scrolling */
+    html, body {
+        max-height: 100vh !important;
+        overflow: hidden !important;
+    }
+    
+    /* Main content container */
+    .block-container {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        max-width: 100% !important;
+    }
+    
+    /* Sidebar - Dark Theme */
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0d1f3c 0%, #1a2d4a 100%) !important;
+        min-width: 260px !important;
+        max-width: 260px !important;
+    }
+    
+    section[data-testid="stSidebar"] * {
+        color: #e0e6ed !important;
+    }
+    
+    section[data-testid="stSidebar"] .stMarkdown {
+        color: #64b5f6 !important;
+        font-weight: 600;
+    }
+    
+    section[data-testid="stSidebar"] label {
+        color: #90caf9 !important;
+        font-size: 0.8rem !important;
+        font-weight: 500;
+    }
+    
+    section[data-testid="stSidebar"] .stSelectbox > div > div {
+        background: #1a2d4a !important;
+        border-color: #64b5f6 !important;
+    }
+    
+    section[data-testid="stSidebar"] .stMultiSelect > div > div {
+        background: #1a2d4a !important;
+        border-color: #64b5f6 !important;
     }
     
     /* Header Styling */
     .main-header {
-        background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        background: linear-gradient(90deg, #1565c0 0%, #0d47a1 50%, #1565c0 100%);
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        border: 1px solid rgba(100,181,246,0.3);
     }
     
     .main-header h1 {
         color: white !important;
-        font-size: 2.5rem !important;
+        font-size: 1.5rem !important;
         font-weight: 700 !important;
-        margin-bottom: 0.5rem !important;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        margin-bottom: 0.25rem !important;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
     }
     
     .main-header p {
-        color: rgba(255,255,255,0.9) !important;
-        font-size: 1.1rem !important;
+        color: rgba(255,255,255,0.85) !important;
+        font-size: 0.85rem !important;
+        margin: 0 !important;
     }
     
-    /* KPI Cards */
+    /* KPI Cards with Gradient Backgrounds */
     .kpi-card {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border-left: 4px solid;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.1);
+        height: 100%;
     }
     
-    .kpi-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    .kpi-card-sales {
+        background: linear-gradient(135deg, #1565c0 0%, #0d47a1 50%, #1976d2 100%);
+    }
+    
+    .kpi-card-profit {
+        background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 50%, #388e3c 100%);
+    }
+    
+    .kpi-card-orders {
+        background: linear-gradient(135deg, #e65100 0%, #ef6c00 50%, #f57c00 100%);
     }
     
     .kpi-card-title {
-        color: #666;
-        font-size: 0.9rem;
-        font-weight: 500;
+        color: rgba(255,255,255,0.9) !important;
+        font-size: 0.75rem !important;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
     
     .kpi-card-value {
-        color: #1e3c72;
-        font-size: 2rem;
+        color: white !important;
+        font-size: 1.6rem !important;
         font-weight: 700;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
     }
     
     .kpi-card-delta {
-        font-size: 0.85rem;
-        margin-top: 0.5rem;
+        color: rgba(255,255,255,0.85) !important;
+        font-size: 0.7rem !important;
+        margin-top: 0.25rem;
     }
     
-    /* Chart Containers */
+    /* Chart Containers - Dark Theme */
     .chart-container {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        margin-bottom: 1.5rem;
+        background: linear-gradient(145deg, #1a2d4a 0%, #0d1f3c 100%);
+        border-radius: 12px;
+        padding: 0.75rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        border: 1px solid rgba(100,181,246,0.2);
+        height: 100%;
     }
     
     .chart-title {
-        color: #1e3c72;
-        font-size: 1.3rem;
+        color: #64b5f6 !important;
+        font-size: 0.9rem !important;
         font-weight: 600;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid #f0f0f0;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.35rem;
+        border-bottom: 1px solid rgba(100,181,246,0.3);
     }
     
     /* Insight Boxes */
     .insight-box {
-        background: linear-gradient(135deg, #e8f4fd 0%, #d4e9f7 100%);
-        border-left: 4px solid #2a5298;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-top: 1rem;
-        color: #1e3c72;
+        background: linear-gradient(135deg, #1a2d4a 0%, #0d1f3c 100%);
+        border-left: 3px solid #64b5f6;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        margin-top: 0.5rem;
+        color: #90caf9;
+        border: 1px solid rgba(100,181,246,0.2);
     }
     
     .insight-box h4 {
-        color: #1e3c72;
+        color: #64b5f6 !important;
         font-weight: 600;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
+        font-size: 0.8rem !important;
     }
     
-    /* Data Table */
-    .data-table-container {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    .insight-box ul {
+        margin: 0 !important;
+        padding-left: 1rem !important;
+        font-size: 0.7rem !important;
     }
     
-    /* Sidebar */
-    .sidebar-title {
-        color: #1e3c72;
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
+    .insight-box li {
+        margin-bottom: 0.1rem !important;
+        color: #bbdefb;
     }
-    
-    /* Metrics Colors */
-    .metric-sales { border-left-color: #28a745 !important; }
-    .metric-profit { border-left-color: #17a2b8 !important; }
-    .metric-orders { border-left-color: #ffc107 !important; }
-    .metric-aov { border-left-color: #6f42c1 !important; }
-    
-    /* Positive/Negative Deltas */
-    .delta-positive { color: #28a745; }
-    .delta-negative { color: #dc3545; }
     
     /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
+    
+    /* Reduce section headers */
+    h3, h4 {
+        color: #64b5f6 !important;
+        font-size: 0.95rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    /* DataFrame styling */
+    .stDataFrame {
+        background: transparent !important;
+    }
+    
+    /* Remove scrollbars */
+    ::-webkit-scrollbar {
+        display: none;
+    }
+    
+    /* Make all text more readable on dark background */
+    .stMarkdown {
+        color: #e0e6ed;
+    }
+    
+    /* Vertical block spacing */
+    div[data-testid="stVerticalBlock"] > div {
+        gap: 0.4rem !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -174,104 +249,80 @@ def calculate_metrics(df):
     total_sales = df['Sales'].sum()
     total_profit = df['Profit'].sum()
     total_orders = df['Order ID'].nunique()
-    avg_order_value = total_sales / total_orders if total_orders > 0 else 0
     
     return {
         'total_sales': total_sales,
         'total_profit': total_profit,
-        'total_orders': total_orders,
-        'avg_order_value': avg_order_value
+        'total_orders': total_orders
     }
 
-def create_kpi_cards(metrics, prev_metrics=None):
-    """Create professional KPI cards"""
-    
-    # Calculate deltas if previous period data available
-    if prev_metrics:
-        sales_delta = ((metrics['total_sales'] - prev_metrics['total_sales']) / prev_metrics['total_sales']) * 100
-        profit_delta = ((metrics['total_profit'] - prev_metrics['total_profit']) / prev_metrics['total_profit']) * 100
-        orders_delta = ((metrics['total_orders'] - prev_metrics['total_orders']) / prev_metrics['total_orders']) * 100
-        aov_delta = ((metrics['avg_order_value'] - prev_metrics['avg_order_value']) / prev_metrics['avg_order_value']) * 100
-    else:
-        sales_delta = profit_delta = orders_delta = aov_delta = 0
+def create_kpi_cards(metrics):
+    """Create modern KPI cards with gradient backgrounds"""
     
     # Create columns for KPI cards
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         st.markdown(f"""
-        <div class="kpi-card metric-sales">
+        <div class="kpi-card kpi-card-sales">
             <div class="kpi-card-title">💰 Total Sales</div>
             <div class="kpi-card-value">${metrics['total_sales']:,.0f}</div>
-            <div class="kpi-card-delta delta-positive">📈 +{sales_delta:.1f}% vs last period</div>
+            <div class="kpi-card-delta">📈 Revenue Generated</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown(f"""
-        <div class="kpi-card metric-profit">
+        <div class="kpi-card kpi-card-profit">
             <div class="kpi-card-title">💵 Total Profit</div>
             <div class="kpi-card-value">${metrics['total_profit']:,.0f}</div>
-            <div class="kpi-card-delta {'delta-positive' if profit_delta >= 0 else 'delta-negative'}">
-                {'📈 +' if profit_delta >= 0 else '📉 '}{profit_delta:.1f}% vs last period
-            </div>
+            <div class="kpi-card-delta">📊 Net Profit</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown(f"""
-        <div class="kpi-card metric-orders">
+        <div class="kpi-card kpi-card-orders">
             <div class="kpi-card-title">📦 Total Orders</div>
             <div class="kpi-card-value">{metrics['total_orders']:,}</div>
-            <div class="kpi-card-delta delta-positive">📈 +{orders_delta:.1f}% vs last period</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col4:
-        st.markdown(f"""
-        <div class="kpi-card metric-aov">
-            <div class="kpi-card-title">📊 Avg Order Value</div>
-            <div class="kpi-card-value">${metrics['avg_order_value']:,.2f}</div>
-            <div class="kpi-card-delta {'delta-positive' if aov_delta >= 0 else 'delta-negative'}">
-                {'📈 +' if aov_delta >= 0 else '📉 '}{aov_delta:.1f}% vs last period
-            </div>
+            <div class="kpi-card-delta">🛒 Orders Placed</div>
         </div>
         """, unsafe_allow_html=True)
 
-def create_sales_trend_chart(df):
-    """Create sales trend over time line chart"""
-    # Aggregate by month
-    monthly_sales = df.groupby(df['Order Date'].dt.to_period('M')).agg({
-        'Sales': 'sum',
-        'Profit': 'sum'
-    }).reset_index()
-    monthly_sales['Order Date'] = monthly_sales['Order Date'].astype(str)
+def create_sales_by_category_chart(df):
+    """Create sales by category bar chart"""
+    category_sales = df.groupby('Category')['Sales'].sum().reset_index()
+    category_sales = category_sales.sort_values('Sales', ascending=True)
     
-    # Create line chart
-    fig = px.line(
-        monthly_sales,
-        x='Order Date',
-        y='Sales',
-        title='📈 Sales Trend Over Time',
-        markers=True,
-        line_shape='spline'
+    fig = px.bar(
+        category_sales,
+        x='Sales',
+        y='Category',
+        orientation='h',
+        title='Sales by Category',
+        text='Sales',
+        color='Category',
+        color_discrete_sequence=['#42a5f5', '#66bb6a', '#ffa726']
     )
     
     fig.update_traces(
-        line_color='#1e3c72',
-        line_width=3,
-        marker=dict(size=8, color='#2a5298', symbol='diamond')
+        texttemplate='$%{text:,.0f}', 
+        textposition='outside',
+        marker_line_width=1,
+        marker_line_color='white'
     )
     
     fig.update_layout(
-        xaxis_title='Month',
-        yaxis_title='Sales ($)',
-        plot_bgcolor='white',
-        paper_bgcolor='white',
-        font=dict(family='Inter'),
-        hovermode='x unified',
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='#f0f0f0')
+        xaxis_title='',
+        yaxis_title='',
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Inter', size=10, color='#e0e6ed'),
+        showlegend=False,
+        height=180,
+        margin=dict(l=10, r=60, t=30, b=10),
+        xaxis=dict(showgrid=True, gridcolor='rgba(100,181,246,0.2)', tickfont_size=9, color='#90caf9'),
+        yaxis=dict(tickfont_size=10, color='#90caf9')
     )
     
     return fig
@@ -281,105 +332,85 @@ def create_sales_by_region_chart(df):
     region_sales = df.groupby('Region')['Sales'].sum().reset_index()
     region_sales = region_sales.sort_values('Sales', ascending=True)
     
-    # Color mapping for regions
-    colors = {'North': '#1e3c72', 'South': '#28a745', 'East': '#ffc107', 'West': '#dc3545'}
-    
     fig = px.bar(
         region_sales,
         x='Sales',
         y='Region',
         orientation='h',
-        title='🏢 Sales by Region',
+        title='Sales by Region',
         text='Sales',
         color='Region',
-        color_discrete_map=colors
-    )
-    
-    fig.update_traces(texttemplate='$%{text:,.0f}', textposition='outside')
-    
-    fig.update_layout(
-        xaxis_title='Sales ($)',
-        yaxis_title='Region',
-        plot_bgcolor='white',
-        paper_bgcolor='white',
-        font=dict(family='Inter'),
-        showlegend=False,
-        xaxis=dict(showgrid=True, gridcolor='#f0f0f0'),
-        yaxis=dict(showgrid=False)
-    )
-    
-    return fig
-
-def create_sales_by_category_chart(df):
-    """Create sales by category donut chart"""
-    category_sales = df.groupby('Category')['Sales'].sum().reset_index()
-    
-    fig = px.pie(
-        category_sales,
-        values='Sales',
-        names='Category',
-        title='🍩 Sales by Category',
-        hole=0.5,
-        color_discrete_sequence=px.colors.qualitative.Set2
+        color_discrete_sequence=['#ab47bc', '#26c6da', '#ff7043', '#9ccc65']
     )
     
     fig.update_traces(
-        textposition='inside',
-        textinfo='percent+label',
-        hovertemplate='<b>%{label}</b><br>Sales: $%{value:,.0f}<br>Percentage: %{percent}<extra></extra>'
+        texttemplate='$%{text:,.0f}', 
+        textposition='outside',
+        marker_line_width=1,
+        marker_line_color='white'
     )
     
     fig.update_layout(
-        paper_bgcolor='white',
-        font=dict(family='Inter'),
-        legend=dict(orientation='h', yanchor='bottom', y=-0.2)
+        xaxis_title='',
+        yaxis_title='',
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Inter', size=10, color='#e0e6ed'),
+        showlegend=False,
+        height=180,
+        margin=dict(l=10, r=60, t=30, b=10),
+        xaxis=dict(showgrid=True, gridcolor='rgba(100,181,246,0.2)', tickfont_size=9, color='#90caf9'),
+        yaxis=dict(tickfont_size=10, color='#90caf9')
     )
     
     return fig
 
-def create_profit_by_region_chart(df):
-    """Create profit by region bar chart"""
-    region_profit = df.groupby('Region')['Profit'].sum().reset_index()
-    region_profit = region_profit.sort_values('Profit', ascending=True)
+def create_monthly_sales_trend(df):
+    """Create monthly sales trend line chart"""
+    monthly_sales = df.groupby(df['Order Date'].dt.to_period('M')).agg({
+        'Sales': 'sum',
+        'Profit': 'sum'
+    }).reset_index()
+    monthly_sales['Order Date'] = monthly_sales['Order Date'].astype(str)
     
-    # Color based on profit (green for positive, red for negative)
-    colors = ['#dc3545' if x < 0 else '#28a745' for x in region_profit['Profit']]
-    
-    fig = px.bar(
-        region_profit,
-        x='Profit',
-        y='Region',
-        orientation='h',
-        title='💰 Profit by Region',
-        text='Profit',
-        color='Profit',
-        color_continuous_scale=['#dc3545', '#28a745']
+    fig = px.line(
+        monthly_sales,
+        x='Order Date',
+        y='Sales',
+        title='Monthly Sales Trend',
+        markers=True,
+        line_shape='spline'
     )
     
-    fig.update_traces(texttemplate='$%{text:,.0f}', textposition='outside')
+    fig.update_traces(
+        line_color='#42a5f5',
+        line_width=3,
+        marker=dict(size=6, color='#64b5f6', symbol='circle')
+    )
     
     fig.update_layout(
-        xaxis_title='Profit ($)',
-        yaxis_title='Region',
-        plot_bgcolor='white',
-        paper_bgcolor='white',
-        font=dict(family='Inter'),
-        showlegend=False,
-        xaxis=dict(showgrid=True, gridcolor='#f0f0f0'),
-        yaxis=dict(showgrid=False)
+        xaxis_title='',
+        yaxis_title='',
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Inter', size=10, color='#e0e6ed'),
+        height=220,
+        margin=dict(l=10, r=20, t=30, b=10),
+        xaxis=dict(showgrid=False, tickfont_size=9, color='#90caf9'),
+        yaxis=dict(showgrid=True, gridcolor='rgba(100,181,246,0.2)', tickfont_size=9, color='#90caf9')
     )
     
     return fig
 
 def create_top_products_chart(df):
-    """Create top 10 products by sales horizontal bar chart"""
+    """Create top 5 products by sales horizontal bar chart"""
     top_products = df.groupby('Product Name')['Sales'].sum().reset_index()
-    top_products = top_products.nlargest(10, 'Sales')
+    top_products = top_products.nlargest(5, 'Sales')
     top_products = top_products.sort_values('Sales', ascending=True)
     
-    # Truncate long product names
+    # Add trophy for #1
     top_products['Product Name'] = top_products['Product Name'].apply(
-        lambda x: x[:40] + '...' if len(x) > 40 else x
+        lambda x: '🏆 ' + x[:35] + '...' if len(x) > 35 else '🏆 ' + x
     )
     
     fig = px.bar(
@@ -387,56 +418,60 @@ def create_top_products_chart(df):
         x='Sales',
         y='Product Name',
         orientation='h',
-        title='🏆 Top 10 Products by Sales',
+        title='Top 5 Products by Sales',
         text='Sales',
         color='Sales',
-        color_continuous_scale='Viridis'
+        color_continuous_scale=['#1565c0', '#42a5f5']
     )
     
-    fig.update_traces(texttemplate='$%{text:,.0f}', textposition='outside')
+    fig.update_traces(
+        texttemplate='$%{text:,.0f}', 
+        textposition='outside',
+        marker_line_width=1,
+        marker_line_color='white'
+    )
     
     fig.update_layout(
-        xaxis_title='Sales ($)',
-        yaxis_title='Product',
-        plot_bgcolor='white',
-        paper_bgcolor='white',
-        font=dict(family='Inter', size=10),
+        xaxis_title='',
+        yaxis_title='',
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Inter', size=9, color='#e0e6ed'),
         showlegend=False,
-        height=400,
-        xaxis=dict(showgrid=True, gridcolor='#f0f0f0'),
-        yaxis=dict(showgrid=False)
+        height=200,
+        margin=dict(l=10, r=70, t=30, b=10),
+        xaxis=dict(showgrid=True, gridcolor='rgba(100,181,246,0.2)', tickfont_size=9, color='#90caf9'),
+        yaxis=dict(tickfont_size=9, color='#90caf9')
     )
     
     return fig
 
-def create_top_products_table(df):
-    """Create data table for top products"""
-    top_products = df.groupby(['Product Name', 'Category', 'Region']).agg({
-        'Sales': 'sum',
-        'Profit': 'sum'
-    }).reset_index()
+def create_key_insights(df):
+    """Create automatic key insights from data"""
+    # Highest revenue category
+    category_sales = df.groupby('Category')['Sales'].sum().sort_values(ascending=False)
+    top_category = category_sales.idxmax()
     
-    top_products = top_products.nlargest(15, 'Sales')
-    top_products = top_products.sort_values('Sales', ascending=False)
+    # Best performing region
+    region_sales = df.groupby('Region')['Sales'].sum().sort_values(ascending=False)
+    top_region = region_sales.idxmax()
     
-    # Format columns
-    top_products['Sales'] = top_products['Sales'].apply(lambda x: f"${x:,.2f}")
-    top_products['Profit'] = top_products['Profit'].apply(lambda x: f"${x:,.2f}")
+    # Monthly trend
+    monthly_sales = df.groupby(df['Order Date'].dt.to_period('M'))['Sales'].sum()
+    if len(monthly_sales) > 1:
+        first_month = monthly_sales.iloc[0]
+        last_month = monthly_sales.iloc[-1]
+        trend = "📈 Upward" if last_month > first_month else "📉 Downward"
+    else:
+        trend = "➡️ Stable"
     
-    return top_products
-
-def create_insight_box(title, insights):
-    """Create styled insight box"""
-    insight_html = f"""
-    <div class="insight-box">
-        <h4>💡 {title}</h4>
-        <ul>
-    """
-    for insight in insights:
-        insight_html += f"<li>{insight}</li>"
-    insight_html += "</ul></div>"
+    insights = [
+        f"🏆 Highest Revenue Category: {top_category} (${category_sales.max():,.0f})",
+        f"🌍 Best Performing Region: {top_region} (${region_sales.max():,.0f})",
+        f"📊 Monthly Sales Trend: {trend}"
+    ]
     
-    return insight_html
+    return insights
 
 def main():
     """Main application function"""
@@ -448,70 +483,75 @@ def main():
     st.markdown("""
     <div class="main-header">
         <h1>📊 Sales Analytics Dashboard</h1>
-        <p>Comprehensive insights into sales performance, regional analysis, and product trends</p>
+        <p>AI-Powered Insights | Real-time Analytics | Dark Theme</p>
     </div>
     """, unsafe_allow_html=True)
     
     # Sidebar Filters
-    st.sidebar.markdown('<div class="sidebar-title">🔍 Interactive Filters</div>', unsafe_allow_html=True)
-    
-    # Make sidebar wider
-    st.markdown("""
-    <style>
-    section[data-testid="stSidebar"] {
-        min-width: 350px;
-        max-width: 350px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    st.sidebar.markdown("## 🔍 Filters")
     
     # Region Filter
-    st.sidebar.markdown("### 🗺️ Region Filter")
+    st.sidebar.markdown("### 🗺️ Region")
     all_regions = sorted(df['Region'].unique().tolist())
     selected_regions = st.sidebar.multiselect(
         "Select Region(s)",
         options=all_regions,
-        default=all_regions,
-        help="Filter by geographic region"
+        default=all_regions
     )
     
     # Category Filter
-    st.sidebar.markdown("### 🏷️ Category Filter")
+    st.sidebar.markdown("### 🏷️ Category")
     all_categories = sorted(df['Category'].unique().tolist())
     selected_categories = st.sidebar.multiselect(
         "Select Category",
         options=all_categories,
-        default=all_categories,
-        help="Filter by product category"
+        default=all_categories
     )
     
-    # Date Filter
-    st.sidebar.markdown("### 📅 Date Range Filter")
+    # Segment Filter
+    st.sidebar.markdown("### 👥 Segment")
+    all_segments = sorted(df['Segment'].unique().tolist())
+    selected_segments = st.sidebar.multiselect(
+        "Select Segment",
+        options=all_segments,
+        default=all_segments
+    )
+    
+    # Date Filter - Last 12 months or custom
+    st.sidebar.markdown("### 📅 Date Range")
     min_date = df['Order Date'].min().date()
     max_date = df['Order Date'].max().date()
     
-    col_date1, col_date2 = st.sidebar.columns(2)
-    with col_date1:
-        start_date = st.date_input(
-            "Start Date",
-            value=min_date,
-            min_value=min_date,
-            max_value=max_date,
-            help="Filter orders from this date"
-        )
-    with col_date2:
-        end_date = st.date_input(
-            "End Date",
-            value=max_date,
-            min_value=min_date,
-            max_value=max_date,
-            help="Filter orders until this date"
-        )
+    # Quick date filter options
+    date_option = st.sidebar.radio(
+        "Select Period",
+        ["All Time", "Last 12 Months", "Custom Range"],
+        index=0
+    )
+    
+    if date_option == "Last 12 Months":
+        # Calculate 12 months back from max date
+        from dateutil.relativedelta import relativedelta
+        start_date = (max_date - relativedelta(months=12)).replace(day=1)
+    elif date_option == "Custom Range":
+        col_date1, col_date2 = st.sidebar.columns(2)
+        with col_date1:
+            start_date = st.date_input("From", value=min_date, min_value=min_date, max_value=max_date)
+        with col_date2:
+            end_date = st.date_input("To", value=max_date, min_value=min_date, max_value=max_date)
+    else:
+        start_date = min_date
+        end_date = max_date
+    
+    # Reset Filters button
+    if st.sidebar.button("🔄 Reset Filters", use_container_width=True):
+        st.rerun()
     
     # Apply Filters
     df_filtered = df[
         (df['Region'].isin(selected_regions)) &
         (df['Category'].isin(selected_categories)) &
+        (df['Segment'].isin(selected_segments)) &
         (df['Order Date'].dt.date >= start_date) &
         (df['Order Date'].dt.date <= end_date)
     ].copy()
@@ -521,245 +561,48 @@ def main():
         st.warning("⚠️ No data matches the selected filters. Please adjust your filter criteria.")
         st.stop()
     
-    # Calculate and Display KPI Cards
-    st.markdown("### 📊 Key Performance Indicators")
+    # KPI Summary Cards
+    st.markdown("### 📊 KPI Summary")
     metrics = calculate_metrics(df_filtered)
     create_kpi_cards(metrics)
     
-    # Sales Trend and Region Analysis Row
+    # Sales Analysis Charts
     st.markdown("### 📈 Sales Analysis")
-    col1, col2 = st.columns([2, 1])
+    col1, col2 = st.columns(2)
     
     with col1:
         st.markdown('<div class="chart-container">', unsafe_allow_html=True)
-        fig_trend = create_sales_trend_chart(df_filtered)
-        st.plotly_chart(fig_trend, use_container_width=True)
-        
-        # Insight for Sales Trend
-        monthly_sales = df_filtered.groupby(df_filtered['Order Date'].dt.to_period('M'))['Sales'].sum()
-        if len(monthly_sales) > 1:
-            first_month = monthly_sales.iloc[0]
-            last_month = monthly_sales.iloc[-1]
-            trend_direction = "upward" if last_month > first_month else "downward"
-            growth_rate = ((last_month - first_month) / first_month) * 100
-            
-            insights = [
-                f"Sales show a {trend_direction} trend over the selected period",
-                f"Growth rate: {abs(growth_rate):.1f}% from first to last month",
-                f"Average monthly sales: ${monthly_sales.mean():,.0f}"
-            ]
-            st.markdown(create_insight_box("Sales Trend Insights", insights), unsafe_allow_html=True)
+        fig_category = create_sales_by_category_chart(df_filtered)
+        st.plotly_chart(fig_category, use_container_width=True, config={'displayModeBar': False})
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
         st.markdown('<div class="chart-container">', unsafe_allow_html=True)
         fig_region = create_sales_by_region_chart(df_filtered)
-        st.plotly_chart(fig_region, use_container_width=True)
-        
-        # Insight for Sales by Region
-        region_sales = df_filtered.groupby('Region')['Sales'].sum().sort_values(ascending=False)
-        best_region = region_sales.idxmax()
-        worst_region = region_sales.idxmin()
-        
-        insights = [
-            f"Top performing region: {best_region} (${region_sales[best_region]:,.0f})",
-            f"Region needing attention: {worst_region} (${region_sales[worst_region]:,.0f})",
-            f"Performance gap: ${region_sales[best_region] - region_sales[worst_region]:,.0f}"
-        ]
-        st.markdown(create_insight_box("Regional Insights", insights), unsafe_allow_html=True)
+        st.plotly_chart(fig_region, use_container_width=True, config={'displayModeBar': False})
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # Category and Profit Analysis Row
-    col3, col4 = st.columns(2)
+    # Trend Analysis
+    st.markdown("### 📉 Trend Analysis")
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    fig_trend = create_monthly_sales_trend(df_filtered)
+    st.plotly_chart(fig_trend, use_container_width=True, config={'displayModeBar': False})
+    st.markdown('</div>', unsafe_allow_html=True)
     
-    with col3:
-        st.markdown('<div class="chart-container">', unsafe_allow_html=True)
-        fig_category = create_sales_by_category_chart(df_filtered)
-        st.plotly_chart(fig_category, use_container_width=True)
-        
-        # Insight for Category
-        category_sales = df_filtered.groupby('Category')['Sales'].sum().sort_values(ascending=False)
-        
-        insights = [
-            f"Highest revenue category: {category_sales.idxmax()} (${category_sales.max():,.0f})",
-            f"Revenue distribution shows category preferences",
-            f"Consider focusing marketing on top categories"
-        ]
-        st.markdown(create_insight_box("Category Insights", insights), unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+    # Product Performance
+    st.markdown("### 🏆 Product Performance")
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    fig_top = create_top_products_chart(df_filtered)
+    st.plotly_chart(fig_top, use_container_width=True, config={'displayModeBar': False})
+    st.markdown('</div>', unsafe_allow_html=True)
     
-    with col4:
-        st.markdown('<div class="chart-container">', unsafe_allow_html=True)
-        fig_profit = create_profit_by_region_chart(df_filtered)
-        st.plotly_chart(fig_profit, use_container_width=True)
-        
-        # Insight for Profit by Region
-        region_profit = df_filtered.groupby('Region')['Profit'].sum()
-        profitable_regions = region_profit[region_profit > 0]
-        unprofitable_regions = region_profit[region_profit <= 0]
-        
-        insights = []
-        profitable_profit_val = 0
-        if len(profitable_regions) > 0:
-            profitable_profit_val = profitable_regions.max()
-            insights.append(f"Most profitable region: {profitable_regions.idxmax()} (${profitable_profit_val:,.0f})")
-        if len(unprofitable_regions) > 0:
-            insights.append(f"Regions with losses: {', '.join(unprofitable_regions.index.tolist())}")
-            insights.append(f"Total loss: ${abs(unprofitable_regions.sum()):,.0f}")
-        insights.append(f"Overall profit margin: {(region_profit.sum() / df_filtered['Sales'].sum() * 100):.1f}%")
-        
-        st.markdown(create_insight_box("Profitability Insights", insights), unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Top Products Section
-    st.markdown("### 🏆 Top Products Analysis")
-    
-    col5, col6 = st.columns([2, 1])
-    
-    with col5:
-        st.markdown('<div class="chart-container">', unsafe_allow_html=True)
-        fig_top = create_top_products_chart(df_filtered)
-        st.plotly_chart(fig_top, use_container_width=True)
-        
-        # Insight for Top Products
-        top_products = df_filtered.groupby('Product Name')['Sales'].sum().nlargest(3)
-        
-        insights = [
-            f"Best selling product: {list(top_products.index)[0][:30]}...",
-            f"Top 3 products generate {top_products.sum():,.0f} in sales",
-            f"Consider cross-selling opportunities with top products"
-        ]
-        st.markdown(create_insight_box("Product Performance Insights", insights), unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    with col6:
-        st.markdown('<div class="data-table-container">', unsafe_allow_html=True)
-        st.markdown('<div class="chart-title">📋 Top Products Data Table</div>', unsafe_allow_html=True)
-        
-        top_table = create_top_products_table(df_filtered)
-        
-        # Display table with formatting
-        st.dataframe(
-            top_table,
-            column_config={
-                "Product Name": st.column_config.TextColumn("Product Name", width="medium"),
-                "Category": st.column_config.TextColumn("Category", width="small"),
-                "Region": st.column_config.TextColumn("Region", width="small"),
-                "Sales": st.column_config.TextColumn("Sales", width="small"),
-                "Profit": st.column_config.TextColumn("Profit", width="small")
-            },
-            hide_index=True,
-            use_container_width=True
-        )
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Summary Statistics
-    st.markdown("### 📊 Summary Statistics")
-    
-    col7, col8, col9 = st.columns(3)
-    
-    with col7:
-        st.markdown('<div class="chart-container">', unsafe_allow_html=True)
-        
-        # Category breakdown
-        cat_stats = df_filtered.groupby('Category').agg({
-            'Sales': 'sum',
-            'Profit': 'sum',
-            'Quantity': 'sum'
-        }).round(2)
-        
-        fig_cat_summary = px.bar(
-            cat_stats.reset_index(),
-            x='Category',
-            y='Sales',
-            title='Sales by Category',
-            color='Category',
-            color_discrete_sequence=px.colors.qualitative.Set2
-        )
-        
-        fig_cat_summary.update_layout(
-            xaxis_title='Category',
-            yaxis_title='Sales ($)',
-            plot_bgcolor='white',
-            paper_bgcolor='white',
-            font=dict(family='Inter', size=10),
-            showlegend=False
-        )
-        
-        st.plotly_chart(fig_cat_summary, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    with col8:
-        st.markdown('<div class="chart-container">', unsafe_allow_html=True)
-        
-        # Regional breakdown
-        reg_stats = df_filtered.groupby('Region').agg({
-            'Sales': 'sum',
-            'Profit': 'sum',
-            'Order ID': 'nunique'
-        }).reset_index()
-        reg_stats.columns = ['Region', 'Sales', 'Profit', 'Orders']
-        
-        fig_reg_summary = px.scatter(
-            reg_stats,
-            x='Sales',
-            y='Profit',
-            size='Orders',
-            color='Region',
-            title='Sales vs Profit by Region',
-            color_discrete_sequence=['#1e3c72', '#28a745', '#ffc107', '#dc3545']
-        )
-        
-        fig_reg_summary.update_layout(
-            xaxis_title='Sales ($)',
-            yaxis_title='Profit ($)',
-            plot_bgcolor='white',
-            paper_bgcolor='white',
-            font=dict(family='Inter', size=10)
-        )
-        
-        st.plotly_chart(fig_reg_summary, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    with col9:
-        st.markdown('<div class="chart-container">', unsafe_allow_html=True)
-        
-        # Monthly profit trend
-        monthly_profit = df_filtered.groupby(df_filtered['Order Date'].dt.to_period('M')).agg({
-            'Profit': 'sum'
-        }).reset_index()
-        monthly_profit['Order Date'] = monthly_profit['Order Date'].astype(str)
-        
-        fig_profit_trend = px.bar(
-            monthly_profit,
-            x='Order Date',
-            y='Profit',
-            title='Monthly Profit Trend',
-            color='Profit',
-            color_continuous_scale=['#dc3545', '#ffc107', '#28a745']
-        )
-        
-        fig_profit_trend.update_layout(
-            xaxis_title='Month',
-            yaxis_title='Profit ($)',
-            plot_bgcolor='white',
-            paper_bgcolor='white',
-            font=dict(family='Inter', size=10),
-            showlegend=False
-        )
-        
-        st.plotly_chart(fig_profit_trend, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Footer
-    st.markdown("---")
-    st.markdown("""
-    <div style="text-align: center; color: #666; padding: 1rem;">
-        <p>📊 Sales Analytics Dashboard | Built with Streamlit, Pandas, and Plotly</p>
-        <p style="font-size: 0.8rem;">Data covers period from {} to {}</p>
-    </div>
-    """.format(min_date.strftime('%B %d, %Y'), max_date.strftime('%B %d, %Y')), unsafe_allow_html=True)
+    # Key Insights Section
+    st.markdown("### 💡 Key Insights")
+    st.markdown('<div class="insight-box">', unsafe_allow_html=True)
+    insights = create_key_insights(df_filtered)
+    for insight in insights:
+        st.markdown(f"• {insight}")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
