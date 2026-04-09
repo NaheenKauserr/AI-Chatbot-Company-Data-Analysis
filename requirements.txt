@@ -24,6 +24,7 @@ python-Levenshtein==0.25.1
 
 # Visualization
 plotly==5.24.1
+recommendations==0.0.1
 
 # Streamlit extras
 streamlit-float==0.3.5
