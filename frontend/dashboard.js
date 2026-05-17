@@ -1228,10 +1228,50 @@
     /* ═══════════════════════════════════════════════════════════════════════
        EMAIL SCHEDULER MODAL
     ═══════════════════════════════════════════════════════════════════════ */
+    let emailQueuedPopupTimer = null;
+
+    function _toggleEmailQueuedPopup(show, options = {}) {
+      const popup = document.getElementById("emailQueuedPopup");
+      const text = document.getElementById("emailQueuedPopupText");
+      const recipient = document.getElementById("emailQueuedPopupRecipient");
+      if (!popup) return;
+
+      if (emailQueuedPopupTimer) {
+        clearTimeout(emailQueuedPopupTimer);
+        emailQueuedPopupTimer = null;
+      }
+
+      if (show) {
+        if (text) {
+          text.textContent = options.message || "Your report is in the sending queue and will be delivered shortly.";
+        }
+        if (recipient) {
+          recipient.textContent = options.recipient || "Recipient email not available";
+        }
+      }
+
+      popup.classList.toggle("active", !!show);
+      popup.setAttribute("aria-hidden", show ? "false" : "true");
+
+      if (show && options.autoClose !== false) {
+        emailQueuedPopupTimer = setTimeout(() => {
+          _toggleEmailQueuedPopup(false);
+        }, options.timeout || 4500);
+      }
+    }
+
+    function closeEmailQueuedPopup() {
+      _toggleEmailQueuedPopup(false);
+    }
+
     function toggleEmailModal() {
       const modal = document.getElementById("emailModal");
       if (!modal) return;
       const isOpen = modal.classList.toggle("open");
+      if (!isOpen) {
+        _toggleEmailSendOverlay(false);
+        _toggleEmailQueuedPopup(false);
+      }
       if (isOpen) {
         loadEmailStatus();
         loadEmailSchedules();
@@ -1279,6 +1319,59 @@
       }
     }
   
+    /* ── Button state helpers for email scheduler ── */
+    function _emailBtnLoading(btnId, loadingText) {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      btn.disabled = true;
+      btn.dataset.originalHtml = btn.innerHTML;
+      btn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+        </svg>
+        ${loadingText}`;
+    }
+
+    function _emailBtnSuccess(btnId, successText) {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      btn.style.background = "rgba(74,222,128,0.15)";
+      btn.style.borderColor = "rgba(74,222,128,0.5)";
+      btn.style.color = "#4ADE80";
+      btn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        ${successText}`;
+      // Reset back to normal after 3 seconds
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.style.background = "";
+        btn.style.borderColor = "";
+        btn.style.color = "";
+        btn.innerHTML = btn.dataset.originalHtml || btn.innerHTML;
+      }, 3000);
+    }
+
+    function _emailBtnError(btnId) {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      btn.disabled = false;
+      btn.style.background = "";
+      btn.style.borderColor = "";
+      btn.style.color = "";
+      btn.innerHTML = btn.dataset.originalHtml || btn.innerHTML;
+    }
+
+    function _toggleEmailSendOverlay(show, message) {
+      const overlay = document.getElementById("emailSendOverlay");
+      const text = document.getElementById("emailSendOverlayText");
+      if (!overlay) return;
+      if (text && message) text.textContent = message;
+      overlay.classList.toggle("active", !!show);
+      overlay.setAttribute("aria-hidden", show ? "false" : "true");
+    }
+
     async function createEmailSchedule() {
       if (!window.App || !App.hasConfiguredBackend()) {
         if (App) App.showToast("Backend required.", "warn"); return;
@@ -1288,6 +1381,8 @@
       const format = val("scheduleFormat");
       const time   = val("scheduleTime") || "09:00";
       if (!email) { if (App) App.showToast("Enter recipient email.", "warn"); return; }
+
+      _emailBtnLoading("btnAddSchedule", "Creating...");
       try {
         await App.request("/api/email/schedules", {
           method: "POST",
@@ -1300,13 +1395,53 @@
             filters: getFilterParams()
           }
         });
+        _emailBtnSuccess("btnAddSchedule", "Schedule Created!");
         if (App) App.showToast("Schedule created. First report sending now.", "success");
         loadEmailSchedules();
       } catch (err) {
+        _emailBtnError("btnAddSchedule");
         if (App) App.showToast(err.message || "Could not create schedule.", "error");
       }
     }
-  
+
+    async function sendReportNow() {
+      if (!window.App || !App.hasConfiguredBackend()) {
+        if (App) App.showToast("Backend required.", "warn"); return;
+      }
+      const email  = val("scheduleEmail");
+      const format = val("scheduleFormat") || "excel";
+      if (!email) { if (App) App.showToast("Enter recipient email first.", "warn"); return; }
+
+      _emailBtnLoading("btnSendNow", "Queueing...");
+      _toggleEmailSendOverlay(true, "Please wait while we queue your report for delivery.");
+      try {
+        const response = await App.request("/api/email/send-now", {
+          method: "POST",
+          body: {
+            recipient_email: email,
+            subject: "Zero Click AI — Sales Report",
+            frequency: "Daily",
+            report_type: format,
+            filters: getFilterParams()
+          }
+        });
+        _toggleEmailSendOverlay(false);
+        _emailBtnSuccess("btnSendNow", "Queued!");
+        _toggleEmailQueuedPopup(true, {
+          recipient: email,
+          message: (response && response.message) || "Your report has been queued successfully and will be sent shortly."
+        });
+        if (App) App.showToast(
+          (response && response.message) || "Your report has been queued successfully and will be sent shortly. Please check your inbox to confirm delivery.",
+          "success"
+        );
+      } catch (err) {
+        _toggleEmailSendOverlay(false);
+        _emailBtnError("btnSendNow");
+        if (App) App.showToast(err.message || "Could not send report.", "error");
+      }
+    }
+
     async function deleteSchedule(id) {
       if (!id) return;
       try {
@@ -1317,31 +1452,7 @@
         if (App) App.showToast(err.message || "Could not remove schedule.", "error");
       }
     }
-  
-    async function sendReportNow() {
-      if (!window.App || !App.hasConfiguredBackend()) {
-        if (App) App.showToast("Backend required.", "warn"); return;
-      }
-      const email  = val("scheduleEmail");
-      const format = val("scheduleFormat") || "excel";
-      if (!email) { if (App) App.showToast("Enter recipient email first.", "warn"); return; }
-      try {
-        await App.request("/api/email/send-now", {
-          method: "POST",
-          body: {
-            recipient_email: email,
-            subject: "Zero Click AI — Sales Report",
-            frequency: "Daily",
-            report_type: format,
-            filters: getFilterParams()
-          }
-        });
-        if (App) App.showToast("Report sending to " + email + ".", "success");
-      } catch (err) {
-        if (App) App.showToast(err.message || "Could not send report.", "error");
-      }
-    }
-  
+
     function exportFilteredCsv() {
       const rows = state.tableRows && state.tableRows.length ? state.tableRows : state.filtered;
       if (!rows.length) { if (App) App.showToast("No filtered data to export.", "error"); return; }
