@@ -51,11 +51,11 @@ def auto_charts(df: pd.DataFrame, column_types: dict) -> list:
                 pie_df = plot_df[pie_col].value_counts().reset_index()
                 pie_df.columns = [pie_col, "count"]
                 fig = px.pie(pie_df, names=pie_col, values="count",
-                             title=f"Share: {pie_col}", hole=0.55,
+                             title=f"Share: {pie_col}",
                              color_discrete_sequence=utils.COLORS)
                 fig.update_traces(textposition="inside", textinfo="percent+label", textfont_size=9)
                 fig.update_layout(showlegend=False)
-                charts.append(("Donut", utils.apply_genesis_theme(fig)))
+                charts.append(("Pie", utils.apply_genesis_theme(fig)))
         except Exception:
             pass
 
